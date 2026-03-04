@@ -1,0 +1,31 @@
+name: Weekly Report
+
+on:
+  schedule:
+    # 每周一早上 8 点生成周报
+    - cron: '0 8 * * 1'
+  workflow_dispatch:
+
+jobs:
+  weekly-report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Generate Report
+        run: |
+          echo "# 周度项目报告" > weekly-report.md
+          echo "" >> weekly-report.md
+          echo "生成时间：$(date '+%Y-%m-%d %H:%M')" >> weekly-report.md
+          echo "" >> weekly-report.md
+          echo "## 提交统计" >> weekly-report.md
+          git log --since="1 week ago" --oneline >> weekly-report.md
+          echo "" >> weekly-report.md
+          echo "## 贡献者" >> weekly-report.md
+          git shortlog -sn --since="1 week ago" >> weekly-report.md
+          
+      - name: Upload Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: weekly-report
+          path: weekly-report.md

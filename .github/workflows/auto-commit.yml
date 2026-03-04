@@ -1,0 +1,31 @@
+name: Auto Commit
+
+on:
+  schedule:
+    # 每天早上 6 点自动提交
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  auto-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Configure Git
+        run: |
+          git config user.name "小志 1 号"
+          git config user.email "admin@openclaw.local"
+      
+      - name: Check for changes
+        run: |
+          git add .
+          if ! git diff --staged --quiet; then
+            git commit -m "chore: 自动提交 - $(date '+%Y-%m-%d %H:%M')"
+            git push
+            echo "✅ 自动提交成功"
+          else
+            echo "ℹ️ 没有变更需要提交"
+          fi
